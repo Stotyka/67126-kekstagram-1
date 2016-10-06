@@ -1,7 +1,7 @@
 # Личный проект «Кекстаграм» [![Build status][travis-image]][travis-url] [![Dependency status][dependency-image]][dependency-url]
 
 * Студент: [Yuriy Stotyka](https://up.htmlacademy.ru/javascript/7/user/67126).
-* Наставник: `Неизвестно`.
+* Наставник: [Софья Ильинова](https://htmlacademy.ru/profile/i).
 
 ---
 
