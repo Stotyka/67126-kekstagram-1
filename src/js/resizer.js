@@ -113,11 +113,45 @@
 
       // Отрисовка прямоугольника, обозначающего область изображения после
       // кадрирования. Координаты задаются от центра.
+
+      var startingCropPoint = (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2;
+      var cropSide = this._resizeConstraint.side - this._ctx.lineWidth / 2;
+
       this._ctx.strokeRect(
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2,
-          this._resizeConstraint.side - this._ctx.lineWidth / 2);
+          startingCropPoint,
+          startingCropPoint,
+          cropSide,
+          cropSide);
+
+      // #8 Canvas
+
+      // Перемещаю точку отсчета системы координат из центра в левый верхний угол холста
+      this._ctx.translate(-this._container.width / 2, -this._container.height / 2);
+
+      // Заполняю весь холст 80% черным
+      this._ctx.beginPath();
+      this._ctx.rect(0, 0, this._container.width, this._container.height);
+      this._ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+
+      // Перемещаю точку отсчета системы координат в центр холста
+      this._ctx.translate(this._container.width / 2, this._container.height / 2);
+
+      // Вычитаю область кадрирования + по 3px по бокам для пунктирной линии
+      this._ctx.rect(
+          startingCropPoint - 3,
+          startingCropPoint - 3,
+          cropSide + 6,
+          cropSide + 6);
+      this._ctx.closePath();
+      this._ctx.fill('evenodd');
+
+      // Надпись — размер загружаемой картинки
+      this._ctx.font = '16px Arial';
+      this._ctx.fillStyle = 'white';
+      this._ctx.fillText(
+          this._image.naturalWidth + ' × ' + this._image.naturalHeight,
+          -40,
+          startingCropPoint - 10);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
