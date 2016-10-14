@@ -83,21 +83,6 @@
       // Очистка изображения.
       this._ctx.clearRect(0, 0, this._container.width, this._container.height);
 
-      // Параметры линии.
-      // NB! Такие параметры сохраняются на время всего процесса отрисовки
-      // canvas'a поэтому важно вовремя поменять их, если нужно начать отрисовку
-      // чего-либо с другой обводкой.
-
-      // Толщина линии.
-      this._ctx.lineWidth = 6;
-      // Цвет обводки.
-      this._ctx.strokeStyle = '#ffe753';
-      // Размер штрихов. Первый элемент массива задает длину штриха, второй
-      // расстояние между соседними штрихами.
-      this._ctx.setLineDash([15, 10]);
-      // Смещение первого штриха от начала линии.
-      this._ctx.lineDashOffset = 7;
-
       // Сохранение состояния канваса.
       this._ctx.save();
 
@@ -116,12 +101,6 @@
 
       var startingCropPoint = (-this._resizeConstraint.side / 2) - this._ctx.lineWidth / 2;
       var cropSide = this._resizeConstraint.side - this._ctx.lineWidth / 2;
-
-      this._ctx.strokeRect(
-          startingCropPoint,
-          startingCropPoint,
-          cropSide,
-          cropSide);
 
       // #8 Canvas
 
@@ -152,6 +131,45 @@
           this._image.naturalWidth + ' × ' + this._image.naturalHeight,
           -40,
           startingCropPoint - 10);
+
+      // #9 Canvas. Дополнительное задание
+
+      this._ctx.translate(-this._resizeConstraint.side / 2, -this._resizeConstraint.side / 2);
+
+      function drawCircleLine(ctx, step, size, cxStart, cyStart, cxEnd, cyEnd) {
+        var x = cxStart;
+        var y = cyStart;
+
+        if (cxStart === cxEnd) {
+          while (y < cyEnd) {
+            drawCircle(ctx, x, y, size);
+            y += step;
+          }
+        }
+
+        if (cyStart === cyEnd) {
+          while (x < cxEnd) {
+            drawCircle(ctx, x, y, size);
+            x += step;
+          }
+        }
+      }
+
+      function drawCircle(ctx, cx, cy, size) {
+        ctx.beginPath();
+        ctx.arc(cx, cy, size, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fill();
+      }
+
+      // Сторона области кадрирования и цвет точек
+      var side = this._resizeConstraint.side;
+      this._ctx.fillStyle = '#ffe753';
+
+      drawCircleLine(this._ctx, 14, 3, 0, 0, 0, side);
+      drawCircleLine(this._ctx, 14, 3, side, 0, side, side);
+      drawCircleLine(this._ctx, 14, 3, 0, 0, side, 0);
+      drawCircleLine(this._ctx, 14, 3, 0, side, side, side);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
