@@ -115,12 +115,12 @@
       // Перемещаю точку отсчета системы координат в центр холста
       this._ctx.translate(this._container.width / 2, this._container.height / 2);
 
-      // Вычитаю область кадрирования + по 3px по бокам для пунктирной линии
+      // Вычитаю область кадрирования
       this._ctx.rect(
-          startingCropPoint - 3,
-          startingCropPoint - 3,
-          cropSide + 6,
-          cropSide + 6);
+          startingCropPoint,
+          startingCropPoint,
+          cropSide,
+          cropSide);
       this._ctx.closePath();
       this._ctx.fill('evenodd');
 
@@ -132,44 +132,85 @@
           -40,
           startingCropPoint - 10);
 
-      // #9 Canvas. Дополнительное задание
+      // #10 Canvas. Совсем дополнительное задание
 
       this._ctx.translate(-this._resizeConstraint.side / 2, -this._resizeConstraint.side / 2);
 
-      function drawCircleLine(ctx, step, size, cxStart, cyStart, cxEnd, cyEnd) {
-        var x = cxStart;
-        var y = cyStart;
+      // Ширина, цвет и максимальный размер зига.
+      this._ctx.lineWidth = 6;
+      this._ctx.lineCap = 'round'; // чтобы стыки зигов были плавные
+      this._ctx.strokeStyle = '#ffe753';
+      var zigMax = 20;
 
-        if (cxStart === cxEnd) {
-          while (y < cyEnd) {
-            drawCircle(ctx, x, y, size);
-            y += step;
-          }
-        }
-
-        if (cyStart === cyEnd) {
-          while (x < cxEnd) {
-            drawCircle(ctx, x, y, size);
-            x += step;
-          }
-        }
-      }
-
-      function drawCircle(ctx, cx, cy, size) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, size, 0, Math.PI * 2, true);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // Сторона области кадрирования и цвет точек
+      // Сторона области кадрирования
       var side = this._resizeConstraint.side;
-      this._ctx.fillStyle = '#ffe753';
 
-      drawCircleLine(this._ctx, 14, 3, 0, 0, 0, side);
-      drawCircleLine(this._ctx, 14, 3, side, 0, side, side);
-      drawCircleLine(this._ctx, 14, 3, 0, 0, side, 0);
-      drawCircleLine(this._ctx, 14, 3, 0, side, side, side);
+      // Находит точный размер зига, чтобы они заполняли сторону рамки без остатка.
+
+      function findZig(zigM, dividedSide) {
+        while (dividedSide > zigM) {
+          dividedSide = dividedSide / 2;
+        }
+        return dividedSide;
+      }
+
+      var zig = findZig(zigMax, side);
+
+      function drawZigLine(ctx, xStart, yStart, xEnd, yEnd) {
+        var x = xStart;
+        var y = yStart;
+
+        if (yStart === yEnd && yStart === 0) {
+          while (x < xEnd) {
+            drawZag(ctx, x, y);
+            drawZig(ctx, x, y);
+            x += zig * 2;
+          }
+        }
+
+        if (xStart === xEnd && xStart === side) {
+          while (y < yEnd) {
+            drawZag(ctx, x, y);
+            drawZig(ctx, x - zig, y + zig);
+            y += zig * 2;
+          }
+        }
+
+        if (yStart === yEnd && yStart === side) {
+          while (x < xEnd) {
+            drawZig(ctx, x - zig, y - zig);
+            drawZag(ctx, x + zig, y - zig);
+            x += zig * 2;
+          }
+        }
+
+        if (xStart === xEnd && xStart === 0) {
+          while (y < yEnd) {
+            drawZig(ctx, x - zig * 2, y);
+            drawZag(ctx, x - zig, y + zig);
+            y += zig * 2;
+          }
+        }
+      }
+
+      function drawZig(ctx, x, y) {
+        ctx.beginPath();
+        ctx.moveTo(x + zig, y + zig);
+        ctx.lineTo(x + zig * 2, y);
+        ctx.stroke();
+      }
+
+      function drawZag(ctx, x, y) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + zig, y + zig);
+        ctx.stroke();
+      }
+
+      drawZigLine(this._ctx, 0, 0, side, 0);
+      drawZigLine(this._ctx, side, 0, side, side);
+      drawZigLine(this._ctx, 0, side, side, side);
+      drawZigLine(this._ctx, 0, 0, 0, side);
 
       // Восстановление состояния канваса, которое было до вызова ctx.save
       // и последующего изменения системы координат. Нужно для того, чтобы
