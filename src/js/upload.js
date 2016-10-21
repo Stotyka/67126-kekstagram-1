@@ -68,14 +68,6 @@
   };
 
   /**
-   * Проверяет, валидны ли данные, в форме кадрирования.
-   * @return {boolean}
-   */
-  var resizeFormIsValid = function() {
-    return true;
-  };
-
-  /**
    * Форма загрузки изображения.
    * @type {HTMLFormElement}
    */
@@ -102,6 +94,40 @@
    * @type {HTMLElement}
    */
   var uploadMessage = document.querySelector('.upload-message');
+
+  var x = resizeForm.elements['x'];
+  var y = resizeForm.elements['y'];
+  var size = resizeForm.elements['size'];
+  var fwd = resizeForm.elements['fwd'];
+
+  /**
+   * Проверяет, валидны ли данные, в форме кадрирования.
+   * @return {boolean}
+   */
+  function resizeFormIsValid() {
+    var imageSizeWidth = currentResizer._image.naturalWidth;
+    var imageSizeHeight = currentResizer._image.naturalHeight;
+    var newX = Number(x.value);
+    var newY = Number(y.value);
+    var newSize = Number(size.value);
+
+    return !(newX < 0 ||
+        newY < 0 ||
+        newSize < 0 ||
+        newX + newSize >= imageSizeWidth ||
+        newY + newSize >= imageSizeHeight ||
+        isNaN(newY) ||
+        isNaN(newSize) ||
+        isNaN(newX));
+  }
+
+  function changeDisable() {
+    fwd.disabled = !resizeFormIsValid();
+  }
+
+  x.oninput = changeDisable;
+  y.oninput = changeDisable;
+  size.oninput = changeDisable;
 
   /**
    * @param {Action} action
