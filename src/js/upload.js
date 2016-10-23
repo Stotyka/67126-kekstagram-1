@@ -231,6 +231,9 @@
 
       resizeForm.classList.add('invisible');
       filterForm.classList.remove('invisible');
+
+      var filterFromCookie = window.Cookies.get('upload-filter') || 'none';
+      document.getElementById('upload-filter-' + filterFromCookie).click();
     }
   };
 
@@ -244,6 +247,19 @@
     filterForm.classList.add('invisible');
     resizeForm.classList.remove('invisible');
   };
+
+  function expireDate() {
+    var ONE_DAY = 1000 * 60 * 60 * 24;
+    var now = new Date();
+    var currentYear = now.getFullYear();
+    var grace = new Date(currentYear, 11, 9);
+
+    if (now < grace) {
+      grace.setFullYear(currentYear - 1);
+    }
+
+    return (now - grace) / ONE_DAY;
+  }
 
   /**
    * Отправка формы фильтра. Возвращает в начальное состояние, предварительно
@@ -285,6 +301,9 @@
     // убрать предыдущий примененный класс. Для этого нужно или запоминать его
     // состояние или просто перезаписывать.
     filterImage.className = 'filter-image-preview ' + filterMap[selectedFilter];
+
+    // Записывает в куки выбранный фильтр
+    window.Cookies.set('upload-filter', selectedFilter, {expires: expireDate()});
   };
 
   cleanupResizer();
